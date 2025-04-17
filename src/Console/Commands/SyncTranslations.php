@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace Trinavo\TranslationSync\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;

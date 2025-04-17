@@ -2,7 +2,7 @@
 
 namespace Trinavo\TranslationSync\Providers;
 
-use App\Console\Commands\SyncTranslations;
+use Trinavo\TranslationSync\Console\Commands\SyncTranslations;
 use Illuminate\Support\ServiceProvider;
 
 class TranslationSyncServiceProvider extends ServiceProvider
