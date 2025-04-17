@@ -1,0 +1,39 @@
+{
+    "name": "trinavo/translation-sync",
+    "description": "Translation sync package for Laravel applications",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Feras AbdAlrahman",
+            "email": "doonfrs@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Trinavo\\TranslationSync\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Trinavo\\TranslationSync\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Trinavo\\TranslationSync\\Providers\\TranslationSyncServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "orchestra/testbench": "^10.1",
+        "phpunit/phpunit": "^11.5",
+        "laravel/framework": "^12.6"
+    }
+}
