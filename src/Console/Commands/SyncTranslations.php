@@ -45,9 +45,18 @@ class SyncTranslations extends Command
                 : [];
 
             // Merge and preserve existing
-            $merged = array_merge($existing, $translationKeys); // new translations will be at the end
+            $merged = array_merge($translationKeys, $existing);
 
-            // Save back to ar.json
+            // Sort so that untranslated (empty value) keys are at the end
+            uksort($merged, function($a, $b) use ($merged) {
+                $aEmpty = $merged[$a] === '';
+                $bEmpty = $merged[$b] === '';
+                if ($aEmpty === $bEmpty) {
+                    return strcmp($a, $b); // sort alphabetically within group
+                }
+                return $aEmpty ? 1 : -1; // empty values go last
+            });
+
             File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
             $this->info('✅ Translations extracted and written to lang/' . $langFile);
