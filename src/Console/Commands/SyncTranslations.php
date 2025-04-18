@@ -45,10 +45,7 @@ class SyncTranslations extends Command
                 : [];
 
             // Merge and preserve existing
-            $merged = array_merge($translationKeys, $existing); // existing translations will overwrite new ones
-
-            // Sort alphabetically
-            ksort($merged);
+            $merged = array_merge($existing, $translationKeys); // new translations will be at the end
 
             // Save back to ar.json
             File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
