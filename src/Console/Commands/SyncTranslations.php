@@ -13,7 +13,7 @@ class SyncTranslations extends Command
     public function handle()
     {
         $langFiles = config('translation-sync.lang_files');
-        if(empty($langFiles)){
+        if (empty($langFiles)) {
             $this->error('No lang files found in config/translation-sync.php');
             return;
         }
@@ -50,7 +50,7 @@ class SyncTranslations extends Command
             ksort($merged);
 
             // Save back to ar.json
-            File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
             $this->info('✅ Translations extracted and written to lang/' . $langFile);
         }
