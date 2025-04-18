@@ -31,7 +31,8 @@ class SyncTranslations extends Command
 
                     if (!empty($matches[1])) {
                         foreach ($matches[1] as $key) {
-                            $translationKeys[$key] = ''; // Default value is same as key
+                            $unescapedKey = stripslashes($key);
+                            $translationKeys[$unescapedKey] = ''; // Default value is same as key
                         }
                     }
                 }
