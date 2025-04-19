@@ -13,7 +13,7 @@ class TranslationExtractor
     public static function extractKeysFromText(string $text): array
     {
         $matches = [];
-        preg_match_all("/(?:__|trans|@lang)\s*\(\s*['\"]([^'\"]+)['\"]\s*[,)]/", $text, $matches);
-        return $matches[1] ?? [];
+        preg_match_all('/(?:__|trans|@lang)\s*\(\s*([\'\"])(.*?)\1/s', $text, $matches);
+        return $matches[2] ?? [];
     }
 } 

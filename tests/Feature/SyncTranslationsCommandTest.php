@@ -53,6 +53,7 @@ class SyncTranslationsCommandTest extends TestCase
             . "trans( 'test.key5' , [ 'bar' => 'baz' ] );\n"
             . "__('test.key6', someFunction(__('test.key7')));\n"
             . "echo 'not a translation';\n"
+            . "'text' => __('You have received a new swap request for your item: \":item\"', ['item' => 'dummy']),\n"
         );
 
         // Run the command
@@ -68,6 +69,7 @@ class SyncTranslationsCommandTest extends TestCase
         $this->assertArrayHasKey('test.key5', $json);
         $this->assertArrayHasKey('test.key6', $json);
         $this->assertArrayHasKey('test.key7', $json);
+        $this->assertArrayHasKey('You have received a new swap request for your item: ":item"', $json);
         $this->assertEquals('', $json['test.key1']);
         $this->assertEquals('', $json['test.key2']);
         $this->assertEquals('', $json['test.key3']);
@@ -75,6 +77,7 @@ class SyncTranslationsCommandTest extends TestCase
         $this->assertEquals('', $json['test.key5']);
         $this->assertEquals('', $json['test.key6']);
         $this->assertEquals('', $json['test.key7']);
+        $this->assertEquals('', $json['You have received a new swap request for your item: ":item"']);
 
         // Clean up
         unlink($dummyFile);
