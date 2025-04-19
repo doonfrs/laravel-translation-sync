@@ -4,6 +4,7 @@ namespace Trinavo\TranslationSync\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Trinavo\TranslationSync\Services\TranslationExtractor;
 
 class SyncTranslations extends Command
 {
@@ -26,13 +27,13 @@ class SyncTranslations extends Command
                 if (in_array($file->getExtension(), ['php', 'blade.php', 'vue'])) {
                     $contents = $file->getContents();
 
-                    // Match __(), trans(), @lang()
-                    preg_match_all("/(?:__|trans|@lang)\(['\"](.+?)['\"]\)/", $contents, $matches);
+                    // Use the TranslationExtractor service
+                    $keys = TranslationExtractor::extractKeysFromText($contents);
 
-                    if (!empty($matches[1])) {
-                        foreach ($matches[1] as $key) {
+                    if (!empty($keys)) {
+                        foreach ($keys as $key) {
                             $unescapedKey = stripslashes($key);
-                            $translationKeys[$unescapedKey] = ''; // Default value is same as key
+                            $translationKeys[$unescapedKey] = '';
                         }
                     }
                 }
