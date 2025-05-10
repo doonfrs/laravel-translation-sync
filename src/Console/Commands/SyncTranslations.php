@@ -18,10 +18,13 @@ class SyncTranslations extends Command
             $this->error('No lang files found in config/translation-sync.php');
             return;
         }
-        $directories = [base_path('app'), base_path('resources')];
+        $scanPaths = config('translation-sync.scan_paths');
+        if (empty($scanPaths)) {
+            $scanPaths = [base_path('app'), base_path('resources'), base_path('config')];
+        }
         $translationKeys = [];
 
-        foreach ($directories as $dir) {
+        foreach ($scanPaths as $dir) {
             $files = File::allFiles($dir);
             foreach ($files as $file) {
                 if (in_array($file->getExtension(), ['php', 'blade.php', 'vue'])) {
