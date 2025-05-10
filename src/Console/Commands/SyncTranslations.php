@@ -54,7 +54,9 @@ class SyncTranslations extends Command
 
             File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
-            $this->info('✅ Translations extracted and written to ' . str_replace(base_path(), '', $langFile));
+            $langFileSimplePath = ltrim(str_replace(base_path(), '', $langFile), '/');
+
+            $this->info('✅ Translations extracted and written to ' . $langFileSimplePath);
         }
     }
 }
