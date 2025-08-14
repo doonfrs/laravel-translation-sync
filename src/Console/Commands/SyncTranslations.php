@@ -48,9 +48,10 @@ class SyncTranslations extends Command
                 ? json_decode(File::get($langFile), true)
                 : [];
 
-            $translationKeys = array_diff_key($translationKeys, $existing);
+            // Create a copy of translationKeys for this file to avoid modifying the original
+            $fileTranslationKeys = array_diff_key($translationKeys, $existing);
 
-            $merged = array_merge($existing, $translationKeys);
+            $merged = array_merge($existing, $fileTranslationKeys);
 
             File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
