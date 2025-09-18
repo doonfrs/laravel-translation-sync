@@ -43,6 +43,8 @@ class SyncTranslations extends Command
             }
         }
 
+        $removeUnusedKeys = config('translation-sync.remove_unused_keys', false);
+
         foreach ($langFiles as $langFile) {
             $existing = File::exists($langFile)
                 ? json_decode(File::get($langFile), true)
@@ -51,7 +53,13 @@ class SyncTranslations extends Command
             // Create a copy of translationKeys for this file to avoid modifying the original
             $fileTranslationKeys = array_diff_key($translationKeys, $existing);
 
-            $merged = array_merge($existing, $fileTranslationKeys);
+            if ($removeUnusedKeys) {
+                // Only keep existing keys that are still found in the scanned files
+                $filtered = array_intersect_key($existing, $translationKeys);
+                $merged = array_merge($filtered, $fileTranslationKeys);
+            } else {
+                $merged = array_merge($existing, $fileTranslationKeys);
+            }
 
             File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
