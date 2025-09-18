@@ -150,4 +150,116 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($arFile);
         unlink($trFile);
     }
+
+    public function testCommandRemovesUnusedKeysWhenConfigured()
+    {
+        // Create a dummy PHP file with translation calls
+        $appDir = base_path('app');
+        if (!is_dir($appDir)) {
+            mkdir($appDir, 0777, true);
+        }
+        $dummyFile = $appDir . '/DummyForRemovalTest.php';
+        file_put_contents($dummyFile, "<?php\n"
+            . "__('current.key1');\n"
+            . "trans('current.key2');\n"
+        );
+
+        // Create initial lang file with both used and unused keys
+        $langDir = base_path('lang');
+        if (!is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+        $langFile = $langDir . '/removal_test.json';
+        $initialContent = [
+            'current.key1' => 'Used key 1',
+            'current.key2' => 'Used key 2',
+            'unused.key1' => 'This should be removed',
+            'unused.key2' => 'This should also be removed'
+        ];
+        file_put_contents($langFile, json_encode($initialContent, JSON_PRETTY_PRINT));
+
+        // Configure the command with removal enabled
+        config([
+            'translation-sync.lang_files' => [$langFile],
+            'translation-sync.remove_unused_keys' => true
+        ]);
+
+        // Run the command
+        $this->artisan('translations:sync')->assertExitCode(0);
+
+        // Assert the lang file exists and only contains used keys
+        $this->assertFileExists($langFile);
+        $json = json_decode(file_get_contents($langFile), true);
+
+        // Should contain used keys
+        $this->assertArrayHasKey('current.key1', $json);
+        $this->assertArrayHasKey('current.key2', $json);
+        $this->assertEquals('Used key 1', $json['current.key1']);
+        $this->assertEquals('Used key 2', $json['current.key2']);
+
+        // Should not contain unused keys
+        $this->assertArrayNotHasKey('unused.key1', $json);
+        $this->assertArrayNotHasKey('unused.key2', $json);
+
+        // Clean up
+        unlink($dummyFile);
+        unlink($langFile);
+    }
+
+    public function testCommandKeepsUnusedKeysWhenNotConfigured()
+    {
+        // Create a dummy PHP file with translation calls
+        $appDir = base_path('app');
+        if (!is_dir($appDir)) {
+            mkdir($appDir, 0777, true);
+        }
+        $dummyFile = $appDir . '/DummyForKeepTest.php';
+        file_put_contents($dummyFile, "<?php\n"
+            . "__('current.key1');\n"
+            . "trans('current.key2');\n"
+        );
+
+        // Create initial lang file with both used and unused keys
+        $langDir = base_path('lang');
+        if (!is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+        $langFile = $langDir . '/keep_test.json';
+        $initialContent = [
+            'current.key1' => 'Used key 1',
+            'current.key2' => 'Used key 2',
+            'unused.key1' => 'This should be kept',
+            'unused.key2' => 'This should also be kept'
+        ];
+        file_put_contents($langFile, json_encode($initialContent, JSON_PRETTY_PRINT));
+
+        // Configure the command with removal disabled (default)
+        config([
+            'translation-sync.lang_files' => [$langFile],
+            'translation-sync.remove_unused_keys' => false
+        ]);
+
+        // Run the command
+        $this->artisan('translations:sync')->assertExitCode(0);
+
+        // Assert the lang file exists and contains all keys
+        $this->assertFileExists($langFile);
+        $json = json_decode(file_get_contents($langFile), true);
+
+        // Should contain used keys
+        $this->assertArrayHasKey('current.key1', $json);
+        $this->assertArrayHasKey('current.key2', $json);
+        $this->assertEquals('Used key 1', $json['current.key1']);
+        $this->assertEquals('Used key 2', $json['current.key2']);
+
+        // Should still contain unused keys
+        $this->assertArrayHasKey('unused.key1', $json);
+        $this->assertArrayHasKey('unused.key2', $json);
+        $this->assertEquals('This should be kept', $json['unused.key1']);
+        $this->assertEquals('This should also be kept', $json['unused.key2']);
+
+        // Clean up
+        unlink($dummyFile);
+        unlink($langFile);
+    }
 } 

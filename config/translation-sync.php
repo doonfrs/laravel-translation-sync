@@ -9,5 +9,6 @@ return [
         base_path('app'),
         base_path('resources'),
         base_path('config')
-    ]
+    ],
+    'remove_unused_keys' => false
 ]; 
