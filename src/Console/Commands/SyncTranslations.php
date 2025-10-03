@@ -9,6 +9,7 @@ use Trinavo\TranslationSync\Services\TranslationExtractor;
 class SyncTranslations extends Command
 {
     protected $signature = 'translations:sync';
+
     protected $description = 'Scan and extract all translation keys into lang/ar.json';
 
     public function handle()
@@ -16,6 +17,7 @@ class SyncTranslations extends Command
         $langFiles = config('translation-sync.lang_files');
         if (empty($langFiles)) {
             $this->error('No lang files found in config/translation-sync.php');
+
             return;
         }
         $scanPaths = config('translation-sync.scan_paths');
@@ -33,7 +35,7 @@ class SyncTranslations extends Command
                     // Use the TranslationExtractor service
                     $keys = TranslationExtractor::extractKeysFromText($contents);
 
-                    if (!empty($keys)) {
+                    if (! empty($keys)) {
                         foreach ($keys as $key) {
                             $unescapedKey = stripslashes($key);
                             $translationKeys[$unescapedKey] = '';
@@ -65,7 +67,7 @@ class SyncTranslations extends Command
 
             $langFileSimplePath = ltrim(str_replace(base_path(), '', $langFile), '/');
 
-            $this->info('✅ Translations extracted and written to ' . $langFileSimplePath);
+            $this->info('✅ Translations extracted and written to '.$langFileSimplePath);
         }
     }
 }

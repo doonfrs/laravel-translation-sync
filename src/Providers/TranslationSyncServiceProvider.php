@@ -2,8 +2,8 @@
 
 namespace Trinavo\TranslationSync\Providers;
 
-use Trinavo\TranslationSync\Console\Commands\SyncTranslations;
 use Illuminate\Support\ServiceProvider;
+use Trinavo\TranslationSync\Console\Commands\SyncTranslations;
 
 class TranslationSyncServiceProvider extends ServiceProvider
 {
@@ -15,7 +15,7 @@ class TranslationSyncServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../../config/translation-sync.php',
+            __DIR__.'/../../config/translation-sync.php',
             'translation-sync'
         );
     }
@@ -29,9 +29,8 @@ class TranslationSyncServiceProvider extends ServiceProvider
     {
         // Publish configuration
         $this->publishes([
-            __DIR__ . '/../../config/translation-sync.php' => config_path('translation-sync.php'),
+            __DIR__.'/../../config/translation-sync.php' => config_path('translation-sync.php'),
         ], 'translation-sync-config');
-
 
         // Register commands
         if ($this->app->runningInConsole()) {

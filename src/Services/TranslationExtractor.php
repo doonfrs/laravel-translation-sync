@@ -6,9 +6,6 @@ class TranslationExtractor
 {
     /**
      * Extract translation keys from a given text.
-     *
-     * @param string $text
-     * @return array
      */
     public static function extractKeysFromText(string $text): array
     {
@@ -31,4 +28,4 @@ class TranslationExtractor
 
         return $keys;
     }
-} 
+}
