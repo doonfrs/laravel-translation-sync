@@ -34,6 +34,7 @@
     "require-dev": {
         "orchestra/testbench": "^10.1",
         "phpunit/phpunit": "^11.5",
-        "laravel/framework": "^12.6"
+        "laravel/framework": "^12.6",
+        "laravel/pint": "^1.25"
     }
 }

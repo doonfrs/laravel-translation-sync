@@ -2,11 +2,8 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Filesystem\Filesystem;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
 use Orchestra\Testbench\TestCase;
-use Trinavo\TranslationSync\Console\Commands\SyncTranslations;
 
 class SyncTranslationsCommandTest extends TestCase
 {
@@ -37,23 +34,23 @@ class SyncTranslationsCommandTest extends TestCase
         return [\Trinavo\TranslationSync\Providers\TranslationSyncServiceProvider::class];
     }
 
-    public function testCommandCreatesTranslationFileWithKeys()
+    public function test_command_creates_translation_file_with_keys()
     {
         // Create a dummy PHP file with translation calls
         $appDir = base_path('app');
-        if (!is_dir($appDir)) {
+        if (! is_dir($appDir)) {
             mkdir($appDir, 0777, true);
         }
-        $dummyFile = $appDir . '/DummyForTranslationTest.php';
+        $dummyFile = $appDir.'/DummyForTranslationTest.php';
         file_put_contents($dummyFile, "<?php\n"
-            . "__ ('test.key1');\n"
-            . "trans('test.key2');\n"
-            . "@lang(\"test.key3\");\n"
-            . "__('test.key4', ['foo' => 'bar']);\n"
-            . "trans( 'test.key5' , [ 'bar' => 'baz' ] );\n"
-            . "__('test.key6', someFunction(__('test.key7')));\n"
-            . "echo 'not a translation';\n"
-            . "'text' => __('You have received a new swap request for your item: \":item\"', ['item' => 'dummy']),\n"
+            ."__ ('test.key1');\n"
+            ."trans('test.key2');\n"
+            ."@lang(\"test.key3\");\n"
+            ."__('test.key4', ['foo' => 'bar']);\n"
+            ."trans( 'test.key5' , [ 'bar' => 'baz' ] );\n"
+            ."__('test.key6', someFunction(__('test.key7')));\n"
+            ."echo 'not a translation';\n"
+            ."'text' => __('You have received a new swap request for your item: \":item\"', ['item' => 'dummy']),\n"
         );
 
         // Run the command
@@ -83,16 +80,16 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($dummyFile);
     }
 
-    public function testCommandUpdatesMultipleLanguageFiles()
+    public function test_command_updates_multiple_language_files()
     {
         // Create test language files
         $langDir = base_path('lang');
-        if (!is_dir($langDir)) {
+        if (! is_dir($langDir)) {
             mkdir($langDir, 0777, true);
         }
 
-        $arFile = $langDir . '/ar.json';
-        $trFile = $langDir . '/tr.json';
+        $arFile = $langDir.'/ar.json';
+        $trFile = $langDir.'/tr.json';
 
         // Create initial content for both files
         $initialAr = ['existing.key' => 'existing value'];
@@ -106,14 +103,14 @@ class SyncTranslationsCommandTest extends TestCase
 
         // Create a dummy PHP file with new translation calls
         $appDir = base_path('app');
-        if (!is_dir($appDir)) {
+        if (! is_dir($appDir)) {
             mkdir($appDir, 0777, true);
         }
-        $dummyFile = $appDir . '/DummyForMultipleFilesTest.php';
+        $dummyFile = $appDir.'/DummyForMultipleFilesTest.php';
         file_put_contents($dummyFile, "<?php\n"
-            . "__('new.key1');\n"
-            . "trans('new.key2');\n"
-            . "__('new.key3');\n"
+            ."__('new.key1');\n"
+            ."trans('new.key2');\n"
+            ."__('new.key3');\n"
         );
 
         // Run the command
@@ -151,37 +148,37 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($trFile);
     }
 
-    public function testCommandRemovesUnusedKeysWhenConfigured()
+    public function test_command_removes_unused_keys_when_configured()
     {
         // Create a dummy PHP file with translation calls
         $appDir = base_path('app');
-        if (!is_dir($appDir)) {
+        if (! is_dir($appDir)) {
             mkdir($appDir, 0777, true);
         }
-        $dummyFile = $appDir . '/DummyForRemovalTest.php';
+        $dummyFile = $appDir.'/DummyForRemovalTest.php';
         file_put_contents($dummyFile, "<?php\n"
-            . "__('current.key1');\n"
-            . "trans('current.key2');\n"
+            ."__('current.key1');\n"
+            ."trans('current.key2');\n"
         );
 
         // Create initial lang file with both used and unused keys
         $langDir = base_path('lang');
-        if (!is_dir($langDir)) {
+        if (! is_dir($langDir)) {
             mkdir($langDir, 0777, true);
         }
-        $langFile = $langDir . '/removal_test.json';
+        $langFile = $langDir.'/removal_test.json';
         $initialContent = [
             'current.key1' => 'Used key 1',
             'current.key2' => 'Used key 2',
             'unused.key1' => 'This should be removed',
-            'unused.key2' => 'This should also be removed'
+            'unused.key2' => 'This should also be removed',
         ];
         file_put_contents($langFile, json_encode($initialContent, JSON_PRETTY_PRINT));
 
         // Configure the command with removal enabled
         config([
             'translation-sync.lang_files' => [$langFile],
-            'translation-sync.remove_unused_keys' => true
+            'translation-sync.remove_unused_keys' => true,
         ]);
 
         // Run the command
@@ -206,37 +203,37 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($langFile);
     }
 
-    public function testCommandKeepsUnusedKeysWhenNotConfigured()
+    public function test_command_keeps_unused_keys_when_not_configured()
     {
         // Create a dummy PHP file with translation calls
         $appDir = base_path('app');
-        if (!is_dir($appDir)) {
+        if (! is_dir($appDir)) {
             mkdir($appDir, 0777, true);
         }
-        $dummyFile = $appDir . '/DummyForKeepTest.php';
+        $dummyFile = $appDir.'/DummyForKeepTest.php';
         file_put_contents($dummyFile, "<?php\n"
-            . "__('current.key1');\n"
-            . "trans('current.key2');\n"
+            ."__('current.key1');\n"
+            ."trans('current.key2');\n"
         );
 
         // Create initial lang file with both used and unused keys
         $langDir = base_path('lang');
-        if (!is_dir($langDir)) {
+        if (! is_dir($langDir)) {
             mkdir($langDir, 0777, true);
         }
-        $langFile = $langDir . '/keep_test.json';
+        $langFile = $langDir.'/keep_test.json';
         $initialContent = [
             'current.key1' => 'Used key 1',
             'current.key2' => 'Used key 2',
             'unused.key1' => 'This should be kept',
-            'unused.key2' => 'This should also be kept'
+            'unused.key2' => 'This should also be kept',
         ];
         file_put_contents($langFile, json_encode($initialContent, JSON_PRETTY_PRINT));
 
         // Configure the command with removal disabled (default)
         config([
             'translation-sync.lang_files' => [$langFile],
-            'translation-sync.remove_unused_keys' => false
+            'translation-sync.remove_unused_keys' => false,
         ]);
 
         // Run the command
@@ -262,4 +259,4 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($dummyFile);
         unlink($langFile);
     }
-} 
+}

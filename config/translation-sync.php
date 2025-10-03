@@ -1,14 +1,14 @@
 <?php
 
 return [
-    'lang_files'=>[
+    'lang_files' => [
         // base_path('lang/ar.json'), // laravel 12
         // resource_path('lang/ar.json'), // laravel < 12
     ],
-    'scan_paths'=>[
+    'scan_paths' => [
         base_path('app'),
         base_path('resources'),
-        base_path('config')
+        base_path('config'),
     ],
-    'remove_unused_keys' => false
-]; 
+    'remove_unused_keys' => false,
+];
