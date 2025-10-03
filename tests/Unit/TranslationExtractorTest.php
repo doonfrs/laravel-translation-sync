@@ -52,6 +52,16 @@ class TranslationExtractorTest extends TestCase
                 "__('nested.key', someFunction(__('not.captured')))",
                 ['nested.key', 'not.captured']
             ],
+            // Escaped apostrophe in translation string
+            [
+                "{{ __('How Our Partnership Works - It\'s Simple!') }}",
+                ["How Our Partnership Works - It's Simple!"]
+            ],
+            // Escaped double quote in translation string
+            [
+                '__("She said \"Hello\" to me")',
+                ['She said "Hello" to me']
+            ],
         ];
     }
 } 
