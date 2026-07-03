@@ -3,14 +3,15 @@
 namespace Trinavo\TranslationSync\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 use Trinavo\TranslationSync\Services\TranslationExtractor;
+use Trinavo\TranslationSync\Support\LangCatalogFile;
 
 class SyncTranslations extends Command
 {
     protected $signature = 'translations:sync';
 
-    protected $description = 'Scan and extract all translation keys into lang/ar.json';
+    protected $description = 'Scan and extract all translation keys into the configured lang catalogs (JSON or PHP)';
 
     public function handle()
     {
@@ -24,33 +25,22 @@ class SyncTranslations extends Command
         if (empty($scanPaths)) {
             $scanPaths = [base_path('app'), base_path('resources'), base_path('config')];
         }
-        $translationKeys = [];
 
-        foreach ($scanPaths as $dir) {
-            $files = File::allFiles($dir);
-            foreach ($files as $file) {
-                if (in_array($file->getExtension(), ['php', 'blade.php', 'vue'])) {
-                    $contents = $file->getContents();
+        $translationKeys = TranslationExtractor::extractKeysFromPaths($scanPaths);
 
-                    // Use the TranslationExtractor service
-                    $keys = TranslationExtractor::extractKeysFromText($contents);
-
-                    if (! empty($keys)) {
-                        foreach ($keys as $key) {
-                            $unescapedKey = stripslashes($key);
-                            $translationKeys[$unescapedKey] = '';
-                        }
-                    }
-                }
-            }
-        }
+        // Never add vendor-namespaced keys (pkg::key): an empty value in the
+        // flat catalog would mask the vendor's own translation and render the
+        // raw key instead.
+        $translationKeys = array_filter(
+            $translationKeys,
+            fn (string $key) => ! Str::contains($key, '::'),
+            ARRAY_FILTER_USE_KEY
+        );
 
         $removeUnusedKeys = config('translation-sync.remove_unused_keys', false);
 
         foreach ($langFiles as $langFile) {
-            $existing = File::exists($langFile)
-                ? json_decode(File::get($langFile), true)
-                : [];
+            $existing = LangCatalogFile::read($langFile);
 
             // Create a copy of translationKeys for this file to avoid modifying the original
             $fileTranslationKeys = array_diff_key($translationKeys, $existing);
@@ -63,7 +53,7 @@ class SyncTranslations extends Command
                 $merged = array_merge($existing, $fileTranslationKeys);
             }
 
-            File::put($langFile, json_encode($merged, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            LangCatalogFile::write($langFile, $merged);
 
             $langFileSimplePath = ltrim(str_replace(base_path(), '', $langFile), '/');
 

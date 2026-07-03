@@ -62,6 +62,31 @@ class TranslationExtractorTest extends TestCase
                 '__("She said \"Hello\" to me")',
                 ['She said "Hello" to me'],
             ],
+            // Concatenated dynamic key must not leak its literal prefix
+            [
+                "__('payment_status.'.\$status)",
+                [],
+            ],
+            // Concatenated dynamic key with spaces around the dot
+            [
+                "__('order_activity.field_' . \$field)",
+                [],
+            ],
+            // Key ending with dots but properly closed is still extracted
+            [
+                "__('Loading...')",
+                ['Loading...'],
+            ],
+            // trans_choice keys are extracted
+            [
+                "trans_choice(':count day remaining|:count days remaining', \$days)",
+                [':count day remaining|:count days remaining'],
+            ],
+            // Namespaced keys are still extracted here (filtering happens later)
+            [
+                "trans('filament-users::user.resource.title.resource')",
+                ['filament-users::user.resource.title.resource'],
+            ],
         ];
     }
 }

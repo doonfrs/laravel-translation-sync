@@ -259,4 +259,68 @@ class SyncTranslationsCommandTest extends TestCase
         unlink($dummyFile);
         unlink($langFile);
     }
+
+    public function test_command_writes_php_catalog_files()
+    {
+        $appDir = base_path('app');
+        if (! is_dir($appDir)) {
+            mkdir($appDir, 0777, true);
+        }
+        $dummyFile = $appDir.'/DummyForPhpTargetTest.php';
+        file_put_contents($dummyFile, "<?php\n"
+            ."__('Zebra key');\n"
+            ."__('Alpha key');\n"
+        );
+
+        $langDir = base_path('lang');
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+        $phpFile = $langDir.'/php_target_test.php';
+        file_put_contents($phpFile, "<?php\n\nreturn [\n    'Alpha key' => 'Existing value',\n];\n");
+
+        config(['translation-sync.lang_files' => [$phpFile]]);
+
+        $this->artisan('translations:sync')->assertExitCode(0);
+
+        $translations = require $phpFile;
+
+        // Existing value preserved, new key added empty, output sorted
+        $this->assertSame('Existing value', $translations['Alpha key']);
+        $this->assertSame('', $translations['Zebra key']);
+        $this->assertSame(['Alpha key', 'Zebra key'], array_keys($translations));
+
+        unlink($dummyFile);
+        unlink($phpFile);
+    }
+
+    public function test_command_never_adds_namespaced_keys()
+    {
+        $appDir = base_path('app');
+        if (! is_dir($appDir)) {
+            mkdir($appDir, 0777, true);
+        }
+        $dummyFile = $appDir.'/DummyForNamespacedTest.php';
+        file_put_contents($dummyFile, "<?php\n"
+            ."trans('filament-users::user.resource.title.resource');\n"
+            ."__('Plain key');\n"
+        );
+
+        $langDir = base_path('lang');
+        if (! is_dir($langDir)) {
+            mkdir($langDir, 0777, true);
+        }
+        $langFile = $langDir.'/namespaced_test.json';
+
+        config(['translation-sync.lang_files' => [$langFile]]);
+
+        $this->artisan('translations:sync')->assertExitCode(0);
+
+        $json = json_decode(file_get_contents($langFile), true);
+        $this->assertArrayHasKey('Plain key', $json);
+        $this->assertArrayNotHasKey('filament-users::user.resource.title.resource', $json);
+
+        unlink($dummyFile);
+        unlink($langFile);
+    }
 }
